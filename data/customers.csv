@@ -1,0 +1,11 @@
+customer_id,first_name,last_name,email,phone_number,date_of_birth,gender,billing_address,billing_city,billing_state,billing_zip,billing_country,registration_date,customer_segment,is_active,email_opt_in,sms_opt_in,acquisition_source,created_at,updated_at
+CUST-1001,John,Smith,john.smith@email.com,512-555-0101,1985-03-15,M,123 Main St,Austin,TX,78701,USA,2023-06-15,GOLD,true,true,false,GOOGLE_ADS,2023-06-15 10:00:00,2024-01-15 10:23:45
+CUST-1002,Sarah,Johnson,sarah.j@email.com,214-555-0102,1990-07-22,F,456 Oak Ave,Dallas,TX,75201,USA,2023-08-20,SILVER,true,true,true,REFERRAL,2023-08-20 14:30:00,2024-01-18 10:10:10
+CUST-1003,Michael,Williams,m.williams@email.com,713-555-0103,1978-11-08,M,789 Pine Rd,Houston,TX,77001,USA,2023-05-10,GOLD,true,false,false,ORGANIC,2023-05-10 09:00:00,2024-01-19 09:00:00
+CUST-1004,Emily,Brown,emily.brown@email.com,210-555-0104,1992-01-30,F,321 Elm St,San Antonio,TX,78201,USA,2023-09-05,SILVER,true,true,true,FACEBOOK_ADS,2023-09-05 16:45:00,2024-01-20 17:55:22
+CUST-1005,David,Jones,david.jones@email.com,817-555-0105,1988-05-17,M,654 Maple Dr,Fort Worth,TX,76101,USA,2023-11-12,BRONZE,true,true,false,GOOGLE_ADS,2023-11-12 11:20:00,2024-01-17 16:22:10
+CUST-1006,Jessica,Garcia,jess.garcia@email.com,915-555-0106,1995-09-25,F,987 Cedar Ln,El Paso,TX,79901,USA,2024-01-02,BRONZE,true,false,true,INSTAGRAM_ADS,2024-01-02 13:00:00,2024-01-18 13:45:30
+CUST-1007,Robert,Martinez,rob.martinez@email.com,469-555-0107,1982-12-03,M,147 Birch Way,Plano,TX,75023,USA,2023-07-28,SILVER,true,true,true,REFERRAL,2023-07-28 10:15:00,2024-01-19 11:30:45
+CUST-1008,Amanda,Davis,amanda.d@email.com,682-555-0108,1991-04-11,F,258 Walnut St,Arlington,TX,76001,USA,2023-10-18,BRONZE,false,false,false,ORGANIC,2023-10-18 15:30:00,2024-01-25 09:00:00
+CUST-1009,Christopher,Rodriguez,chris.rod@email.com,806-555-0109,1987-08-29,M,369 Spruce Ave,Lubbock,TX,79401,USA,2023-12-01,BRONZE,true,true,false,GOOGLE_ADS,2023-12-01 08:00:00,2024-01-21 08:15:00
+CUST-1010,Ashley,Wilson,ashley.w@email.com,361-555-0110,1993-06-14,F,741 Ash Blvd,Corpus Christi,TX,78401,USA,2024-01-10,BRONZE,true,true,true,TIKTOK_ADS,2024-01-10 12:00:00,2024-01-21 12:40:33

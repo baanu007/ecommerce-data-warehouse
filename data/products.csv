@@ -1,0 +1,11 @@
+product_id,product_name,product_description,sku,category,subcategory,brand,cost_price,list_price,sale_price,stock_quantity,reorder_level,is_active,is_featured,weight_kg,supplier_id,created_at,updated_at
+PROD-101,Wireless Bluetooth Headphones,Premium noise-canceling headphones with 30hr battery,SKU-WBH-001,ELECTRONICS,AUDIO,SoundMax,120.00,299.99,269.99,150,25,true,true,0.35,SUP-001,2023-01-15 10:00:00,2024-01-10 09:00:00
+PROD-102,4K Ultra HD Smart TV 55",55 inch smart TV with HDR and streaming apps,SKU-TV55-002,ELECTRONICS,TV,VisionPro,350.00,599.99,,75,10,true,true,18.50,SUP-002,2023-02-20 14:00:00,2024-01-05 11:00:00
+PROD-103,Organic Cotton T-Shirt,100% organic cotton comfortable fit t-shirt,SKU-OCT-003,APPAREL,TOPS,EcoWear,15.00,49.99,39.99,500,100,true,false,0.25,SUP-003,2023-03-10 09:00:00,2024-01-12 10:00:00
+PROD-104,Professional DSLR Camera,24MP DSLR with 4K video recording,SKU-CAM-004,ELECTRONICS,CAMERAS,PhotoMaster,550.00,899.99,799.99,30,5,true,true,1.20,SUP-004,2023-01-25 11:00:00,2024-01-08 14:00:00
+PROD-105,Stainless Steel Water Bottle,Insulated 32oz water bottle keeps drinks cold 24hrs,SKU-WB-005,HOME,KITCHEN,HydroLife,25.00,149.99,,200,50,true,false,0.45,SUP-005,2023-04-05 10:00:00,2024-01-15 09:00:00
+PROD-106,Bamboo Cutting Board Set,Set of 3 eco-friendly bamboo cutting boards,SKU-BCB-006,HOME,KITCHEN,GreenChef,10.00,29.99,24.99,300,75,true,false,1.80,SUP-005,2023-05-12 13:00:00,2024-01-18 10:00:00
+PROD-107,Gaming Laptop 15.6",High-performance gaming laptop RTX 4060,SKU-GLP-007,ELECTRONICS,COMPUTERS,TechForce,800.00,1299.99,,45,8,true,true,2.30,SUP-006,2023-06-18 15:00:00,2024-01-19 09:00:00
+PROD-108,Yoga Mat Premium,Non-slip eco-friendly yoga mat 6mm thick,SKU-YM-008,SPORTS,FITNESS,ZenFit,30.00,449.99,399.99,180,40,true,false,1.50,SUP-007,2023-07-22 10:00:00,2024-01-20 11:00:00
+PROD-109,Wireless Gaming Mouse,RGB gaming mouse with 16000 DPI sensor,SKU-WGM-009,ELECTRONICS,ACCESSORIES,GameGear,25.00,79.99,69.99,250,60,true,false,0.12,SUP-001,2023-08-30 14:00:00,2024-01-21 08:00:00
+PROD-110,Smart Fitness Watch,Heart rate monitor GPS and 7-day battery,SKU-SFW-010,ELECTRONICS,WEARABLES,FitTech,80.00,199.99,,120,20,true,true,0.05,SUP-008,2023-09-15 11:00:00,2024-01-21 12:00:00
