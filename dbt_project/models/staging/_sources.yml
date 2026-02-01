@@ -1,0 +1,43 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw data loaded from source systems
+    database: "{{ env_var('SNOWFLAKE_DATABASE', 'ECOMMERCE') }}"
+    schema: raw
+    tables:
+      - name: orders
+        description: Raw order transactions from e-commerce platform
+        columns:
+          - name: order_id
+            description: Unique identifier for each order
+          - name: customer_id
+            description: Reference to customer
+          - name: product_id
+            description: Reference to product
+          - name: order_date
+            description: Date of order placement
+            
+      - name: customers
+        description: Raw customer data
+        columns:
+          - name: customer_id
+            description: Unique customer identifier
+          - name: email
+            description: Customer email address
+            
+      - name: products
+        description: Raw product catalog
+        columns:
+          - name: product_id
+            description: Unique product identifier
+          - name: sku
+            description: Stock keeping unit
+            
+      - name: inventory
+        description: Daily inventory snapshots
+        columns:
+          - name: product_id
+            description: Reference to product
+          - name: snapshot_date
+            description: Date of inventory snapshot
