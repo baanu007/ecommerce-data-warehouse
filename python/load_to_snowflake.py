@@ -127,10 +127,12 @@ def load_csv_files(loader: SnowflakeLoader, data_dir: str):
     """Load all CSV files from data directory"""
     
     tables = {
-        'orders.csv': 'ORDERS',
-        'customers.csv': 'CUSTOMERS',
-        'products.csv': 'PRODUCTS',
-        'inventory.csv': 'INVENTORY'
+        'orders.csv':      'ORDERS',
+        'order_items.csv': 'ORDER_ITEMS',
+        'customers.csv':   'CUSTOMERS',
+        'products.csv':    'PRODUCTS',
+        'payments.csv':    'PAYMENTS',
+        'inventory.csv':   'INVENTORY',
     }
     
     for filename, table_name in tables.items():
@@ -149,8 +151,11 @@ def main():
     loader = SnowflakeLoader()
     
     try:
-        # Load sample data
-        data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
+        # Load sample data (point at data/sample to use the synthetic fixtures,
+        # or data/ for the smaller demo CSVs).
+        data_dir = os.path.join(os.path.dirname(__file__), '..', 'data', 'sample')
+        if not os.path.isdir(data_dir):
+            data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
         load_csv_files(loader, data_dir)
         
         logger.info("Data loading completed successfully")

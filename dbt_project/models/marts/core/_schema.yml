@@ -1,0 +1,155 @@
+version: 2
+
+models:
+  - name: dim_customer
+    description: >
+      SCD Type 2 customer dimension. One row per (customer_id, version).
+      `is_current = true` for the latest version.
+    columns:
+      - name: customer_key
+        description: Surrogate key (customer_id + valid_from).
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: Natural key from source.
+        tests:
+          - not_null
+      - name: is_current
+        tests:
+          - not_null
+      - name: days_since_last_order
+        description: >
+          Days between last order and current_date. Computed only on the
+          current SCD2 version (is_current = true); NULL on historical rows.
+      - name: customer_status
+        description: >
+          As-of-today recency bucket. Populated only on current SCD2 rows;
+          NULL on historical versions to avoid stale lifecycle labels.
+        tests:
+          - accepted_values:
+              values: ['Never Purchased', 'Active', 'At Risk', 'Lapsed', 'Churned']
+              config:
+                where: "is_current = true"
+      - name: value_tier
+        description: >
+          Lifetime-revenue tier. Populated only on current SCD2 rows; NULL
+          on historical versions.
+        tests:
+          - accepted_values:
+              values: ['Platinum', 'Gold', 'Silver', 'Bronze']
+              config:
+                where: "is_current = true"
+
+  - name: dim_product
+    description: Type-1 product dimension with pricing, inventory, and performance metrics.
+    columns:
+      - name: product_key
+        tests:
+          - not_null
+          - unique
+      - name: product_id
+        tests:
+          - not_null
+          - unique
+      - name: sku
+        tests:
+          - not_null
+          - unique
+      - name: list_price
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: stock_status
+        tests:
+          - accepted_values:
+              values: ['In Stock', 'Low Stock', 'Out of Stock']
+      - name: performance_tier
+        tests:
+          - accepted_values:
+              values: ['Star', 'Cash Cow', 'Question Mark', 'Dog']
+
+  - name: dim_date
+    description: Static date dimension (2020-01-01 to 2030-12-31).
+    columns:
+      - name: date_key
+        tests:
+          - not_null
+          - unique
+      - name: calendar_date
+        tests:
+          - not_null
+          - unique
+
+  - name: fct_orders
+    description: >
+      Order-header grain fact. One row per order. Materialized incrementally
+      on `order_date` — use `dbt run --full-refresh --select fct_orders` to
+      rebuild from scratch after historical corrections. The `customer_key`
+      is resolved via a temporal join into `dim_customer` so each order
+      binds to the customer SCD2 version that was current on its order_date.
+    columns:
+      - name: order_key
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: customer_key
+        tests:
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_key
+      - name: date_key
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: net_amount
+        tests:
+          - not_null
+      - name: order_status
+        tests:
+          - accepted_values:
+              values: ['PENDING', 'PROCESSING', 'COMPLETED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED']
+
+  - name: fct_order_items
+    description: >
+      Line-item grain fact. One row per (order, product) line. `customer_key`
+      is resolved via a temporal join into `dim_customer` (SCD2-aware), so
+      each line binds to the customer version current on its order_date.
+    columns:
+      - name: order_item_key
+        tests:
+          - not_null
+          - unique
+      - name: order_item_id
+        tests:
+          - not_null
+          - unique
+      - name: product_key
+        tests:
+          - relationships:
+              to: ref('dim_product')
+              field: product_key
+      - name: customer_key
+        tests:
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_key
+      - name: date_key
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: quantity
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+      - name: net_amount
+        tests:
+          - not_null

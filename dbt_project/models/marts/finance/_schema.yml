@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: fct_daily_revenue
+    description: One row per day with revenue, profit, and order-count metrics.
+    columns:
+      - name: order_date
+        tests:
+          - not_null
+          - unique
+      - name: net_revenue
+        tests:
+          - not_null
+
+  - name: fct_payment_method_summary
+    description: One row per (order_date, payment_method).
+    columns:
+      - name: payment_method
+        tests:
+          - not_null
+      - name: order_date
+        tests:
+          - not_null

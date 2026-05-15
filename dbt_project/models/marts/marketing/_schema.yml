@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: fct_customer_acquisition
+    description: Customer acquisition by month + source.
+    columns:
+      - name: acquisition_month
+        tests:
+          - not_null
+      - name: acquisition_source
+        tests:
+          - not_null
+
+  - name: fct_cohort_retention
+    description: Monthly cohort retention curves.
+    columns:
+      - name: cohort_month
+        tests:
+          - not_null
+      - name: activity_month
+        tests:
+          - not_null
+      - name: months_since_signup
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0

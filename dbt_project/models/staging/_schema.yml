@@ -1,0 +1,128 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: Cleaned order headers from raw.orders.
+    columns:
+      - name: order_id
+        description: Primary key.
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: FK to stg_customers.
+        tests:
+          - not_null
+      - name: order_status
+        description: Order lifecycle status (upper-cased).
+        tests:
+          - accepted_values:
+              values: ['PENDING', 'PROCESSING', 'COMPLETED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED']
+      - name: payment_method
+        tests:
+          - accepted_values:
+              values: ['CREDIT_CARD', 'DEBIT_CARD', 'PAYPAL', 'APPLE_PAY', 'GIFT_CARD', 'BANK_TRANSFER']
+              config:
+                severity: warn
+      - name: net_amount
+        tests:
+          - not_null
+
+  - name: stg_order_items
+    description: Cleaned order line items from raw.order_items.
+    columns:
+      - name: order_item_id
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_products')
+              field: product_id
+      - name: quantity
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+      - name: unit_price
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: net_amount
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              severity: warn
+
+  - name: stg_customers
+    description: Cleaned customer master.
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
+      - name: email
+        tests:
+          - not_null
+          - unique
+      - name: customer_segment
+        tests:
+          - accepted_values:
+              values: ['PLATINUM', 'GOLD', 'SILVER', 'BRONZE', 'STANDARD']
+              config:
+                severity: warn
+
+  - name: stg_products
+    description: Cleaned product catalog.
+    columns:
+      - name: product_id
+        tests:
+          - not_null
+          - unique
+      - name: sku
+        tests:
+          - not_null
+          - unique
+      - name: list_price
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: category
+        tests:
+          - not_null
+
+  - name: stg_payments
+    description: Cleaned payment events.
+    columns:
+      - name: payment_id
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+      - name: payment_method
+        tests:
+          - accepted_values:
+              values: ['CREDIT_CARD', 'DEBIT_CARD', 'PAYPAL', 'APPLE_PAY', 'GIFT_CARD', 'BANK_TRANSFER']
+      - name: payment_status
+        tests:
+          - accepted_values:
+              values: ['CAPTURED', 'AUTHORIZED', 'PENDING', 'FAILED', 'REFUNDED', 'VOIDED']
+      - name: amount
+        tests:
+          - not_null

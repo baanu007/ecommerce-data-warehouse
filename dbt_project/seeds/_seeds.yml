@@ -1,0 +1,18 @@
+version: 2
+
+seeds:
+  - name: country_codes
+    description: ISO-3 country codes mapped to regions for geo rollups.
+    columns:
+      - name: country_code
+        tests: [not_null, unique]
+      - name: country_name
+        tests: [not_null]
+
+  - name: product_categories
+    description: Reference list of category/subcategory pairs and parent departments.
+    columns:
+      - name: category
+        tests: [not_null]
+      - name: subcategory
+        tests: [not_null]

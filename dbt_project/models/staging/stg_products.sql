@@ -53,7 +53,7 @@ renamed as (
         -- Metadata
         created_at::timestamp as created_at,
         updated_at::timestamp as updated_at,
-        current_timestamp() as _loaded_at
+        current_timestamp as _loaded_at
         
     from source
     where product_id is not null
