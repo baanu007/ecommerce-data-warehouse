@@ -1,7 +1,15 @@
+# dbt
 dbt-core==1.7.4
 dbt-snowflake==1.7.1
+dbt-duckdb==1.7.1
+
+# Local DuckDB engine for the quickstart
+duckdb==0.10.0
+
+# Snowflake ingestion helper
 snowflake-connector-python==3.6.0
 pandas==2.1.4
+
+# Misc
 python-dotenv==1.0.0
-great-expectations==0.18.8
 PyYAML==6.0.1

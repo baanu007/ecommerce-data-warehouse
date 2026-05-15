@@ -3,6 +3,11 @@ target/
 dbt_packages/
 logs/
 .user.yml
+.dbt/
+
+# DuckDB local databases
+*.duckdb
+*.duckdb.wal
 
 # Python
 __pycache__/
@@ -13,6 +18,7 @@ __pycache__/
 venv/
 ENV/
 .env
+.env.*
 
 # IDE
 .idea/
@@ -24,7 +30,11 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Secrets
+# Secrets — never commit
 profiles.yml
 *.pem
 *.key
+credentials.json
+
+# Exception: the DuckDB profile bundled in the repo is safe (no creds)
+!dbt_project/profiles/profiles.yml

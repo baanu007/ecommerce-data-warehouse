@@ -1,0 +1,133 @@
+version: 2
+
+models:
+  - name: dim_customer
+    description: >
+      SCD Type 2 customer dimension. One row per (customer_id, version).
+      `is_current = true` for the latest version.
+    columns:
+      - name: customer_key
+        description: Surrogate key (customer_id + valid_from).
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        description: Natural key from source.
+        tests:
+          - not_null
+      - name: is_current
+        tests:
+          - not_null
+      - name: customer_status
+        tests:
+          - accepted_values:
+              values: ['Never Purchased', 'Active', 'At Risk', 'Lapsed', 'Churned']
+      - name: value_tier
+        tests:
+          - accepted_values:
+              values: ['Platinum', 'Gold', 'Silver', 'Bronze']
+
+  - name: dim_product
+    description: Type-1 product dimension with pricing, inventory, and performance metrics.
+    columns:
+      - name: product_key
+        tests:
+          - not_null
+          - unique
+      - name: product_id
+        tests:
+          - not_null
+          - unique
+      - name: sku
+        tests:
+          - not_null
+          - unique
+      - name: list_price
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: stock_status
+        tests:
+          - accepted_values:
+              values: ['In Stock', 'Low Stock', 'Out of Stock']
+      - name: performance_tier
+        tests:
+          - accepted_values:
+              values: ['Star', 'Cash Cow', 'Question Mark', 'Dog']
+
+  - name: dim_date
+    description: Static date dimension (2020-01-01 to 2030-12-31).
+    columns:
+      - name: date_key
+        tests:
+          - not_null
+          - unique
+      - name: calendar_date
+        tests:
+          - not_null
+          - unique
+
+  - name: fct_orders
+    description: Order-header grain fact. One row per order.
+    columns:
+      - name: order_key
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: customer_key
+        tests:
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_key
+      - name: date_key
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: net_amount
+        tests:
+          - not_null
+      - name: order_status
+        tests:
+          - accepted_values:
+              values: ['PENDING', 'PROCESSING', 'COMPLETED', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'RETURNED']
+
+  - name: fct_order_items
+    description: Line-item grain fact. One row per (order, product) line.
+    columns:
+      - name: order_item_key
+        tests:
+          - not_null
+          - unique
+      - name: order_item_id
+        tests:
+          - not_null
+          - unique
+      - name: product_key
+        tests:
+          - relationships:
+              to: ref('dim_product')
+              field: product_key
+      - name: customer_key
+        tests:
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_key
+      - name: date_key
+        tests:
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: quantity
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 1
+      - name: net_amount
+        tests:
+          - not_null

@@ -1,0 +1,36 @@
+# Example profiles.yml for running this project against Snowflake in production.
+#
+# Copy to ~/.dbt/profiles.yml and replace the placeholder values. Never commit
+# real account names or credentials. Use environment variables in CI/CD.
+#
+# Required env vars for the version below:
+#   SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER, SNOWFLAKE_PASSWORD,
+#   SNOWFLAKE_ROLE, SNOWFLAKE_WAREHOUSE, SNOWFLAKE_DATABASE
+
+ecommerce_warehouse:
+  target: dev
+  outputs:
+
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user:    "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role:      "{{ env_var('SNOWFLAKE_ROLE',      'TRANSFORM') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'TRANSFORM_WH') }}"
+      database:  "{{ env_var('SNOWFLAKE_DATABASE',  'ECOMMERCE') }}"
+      schema:    dev_baanu     # personal dev schema; prefixed by generate_schema_name
+      threads: 8
+      client_session_keep_alive: false
+
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user:    "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role:      "{{ env_var('SNOWFLAKE_ROLE',      'TRANSFORM') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'TRANSFORM_WH') }}"
+      database:  "{{ env_var('SNOWFLAKE_DATABASE',  'ECOMMERCE') }}"
+      schema:    analytics      # in prod, generate_schema_name strips the prefix
+      threads: 16
+      client_session_keep_alive: false

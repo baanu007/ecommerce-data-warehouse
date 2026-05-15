@@ -23,7 +23,7 @@ renamed as (
         
         -- Demographics
         date_of_birth::date as date_of_birth,
-        datediff('year', date_of_birth, current_date()) as age,
+        datediff('year', cast(date_of_birth as date), current_date) as age,
         upper(trim(gender)) as gender,
         
         -- Address
@@ -46,7 +46,7 @@ renamed as (
         -- Metadata
         created_at::timestamp as created_at,
         updated_at::timestamp as updated_at,
-        current_timestamp() as _loaded_at
+        current_timestamp as _loaded_at
         
     from source
     where customer_id is not null

@@ -1,0 +1,83 @@
+name: dbt CI (DuckDB)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install \
+            dbt-core==1.7.4 \
+            dbt-duckdb==1.7.1 \
+            duckdb==0.10.0
+
+      - name: Generate sample data
+        working-directory: data/sample
+        run: python generate.py
+
+      - name: Load raw tables into DuckDB
+        working-directory: data/sample
+        run: python load_to_duckdb.py ../../dbt_project/ci.duckdb
+
+      - name: dbt deps
+        working-directory: dbt_project
+        env:
+          DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_project/profiles
+        run: dbt deps
+
+      - name: dbt seed
+        working-directory: dbt_project
+        env:
+          DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_project/profiles
+        run: dbt seed --target ci
+
+      - name: dbt snapshot
+        working-directory: dbt_project
+        env:
+          DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_project/profiles
+        run: dbt snapshot --target ci
+
+      - name: dbt run
+        working-directory: dbt_project
+        env:
+          DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_project/profiles
+        run: dbt run --target ci
+
+      - name: dbt test
+        working-directory: dbt_project
+        env:
+          DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_project/profiles
+        run: dbt test --target ci
+
+      - name: dbt docs generate
+        working-directory: dbt_project
+        env:
+          DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_project/profiles
+        run: dbt docs generate --target ci
+
+      - name: Upload dbt artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dbt-artifacts
+          path: |
+            dbt_project/target/manifest.json
+            dbt_project/target/catalog.json
+            dbt_project/target/run_results.json
+          retention-days: 7

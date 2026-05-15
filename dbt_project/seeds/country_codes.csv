@@ -1,0 +1,18 @@
+country_code,country_name,region
+USA,United States,North America
+CAN,Canada,North America
+MEX,Mexico,North America
+GBR,United Kingdom,Europe
+DEU,Germany,Europe
+FRA,France,Europe
+ESP,Spain,Europe
+ITA,Italy,Europe
+IND,India,Asia
+JPN,Japan,Asia
+CHN,China,Asia
+SGP,Singapore,Asia
+AUS,Australia,Oceania
+NZL,New Zealand,Oceania
+BRA,Brazil,South America
+ARG,Argentina,South America
+ZAF,South Africa,Africa

@@ -1,0 +1,32 @@
+# Example profiles.yml for running this project locally against DuckDB.
+#
+# Copy this file to ~/.dbt/profiles.yml (or pass --profiles-dir) and adjust
+# the `path:` if you want the DuckDB file somewhere else.
+#
+# Then from the dbt_project/ directory:
+#
+#   dbt deps
+#   dbt seed
+#   dbt snapshot
+#   dbt run
+#   dbt test
+#
+# No Snowflake account required.
+
+ecommerce_warehouse:
+  target: dev
+  outputs:
+
+    dev:
+      type: duckdb
+      # Relative to the dbt_project/ working directory.
+      path: target/ecommerce.duckdb
+      schema: main
+      threads: 4
+
+    ci:
+      type: duckdb
+      # In CI we use an ephemeral file in the workspace root.
+      path: ./ci.duckdb
+      schema: main
+      threads: 4

@@ -16,11 +16,14 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
+# Project-level vars exposed to all models.
 vars:
-  # Date range for incremental processing
+  # Date range for incremental processing. Override with --vars in CI.
   start_date: '2023-01-01'
   end_date: '{{ run_started_at.strftime("%Y-%m-%d") }}'
 
+# Model layer config. Materialization and schema are set per-folder so
+# downstream consumers see clean schema names (STAGING / MARTS / FINANCE / …).
 models:
   ecommerce_warehouse:
     staging:
@@ -28,13 +31,29 @@ models:
       +schema: staging
     intermediate:
       +materialized: ephemeral
+      +schema: intermediate
     marts:
-      +materialized: table
-      +schema: marts
-    analytics:
-      +materialized: table
-      +schema: analytics
+      core:
+        +materialized: table
+        +schema: marts
+      finance:
+        +materialized: table
+        +schema: finance
+      marketing:
+        +materialized: table
+        +schema: marketing
 
 seeds:
   ecommerce_warehouse:
     +schema: seeds
+    country_codes:
+      +column_types:
+        country_code: varchar(3)
+    product_categories:
+      +column_types:
+        category: varchar(64)
+        subcategory: varchar(64)
+
+snapshots:
+  ecommerce_warehouse:
+    +target_schema: snapshots

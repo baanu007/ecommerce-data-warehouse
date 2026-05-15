@@ -1,0 +1,48 @@
+version: 2
+
+exposures:
+  - name: executive_revenue_dashboard
+    label: Executive Revenue Dashboard
+    type: dashboard
+    maturity: high
+    url: https://app.powerbi.com/groups/me/dashboards/executive-revenue
+    description: >
+      Daily / weekly / monthly revenue, profit, and order volume for the
+      executive team. Powered by fct_daily_revenue and dim_date.
+    depends_on:
+      - ref('fct_daily_revenue')
+      - ref('dim_date')
+    owner:
+      name: Baanu Sai Sankar Bojja
+      email: baanusankaroo7.bs@gmail.com
+
+  - name: customer_health_dashboard
+    label: Customer Health Dashboard
+    type: dashboard
+    maturity: medium
+    url: https://app.powerbi.com/groups/me/dashboards/customer-health
+    description: >
+      LTV, churn, segmentation and acquisition mix. Used by marketing
+      and CX teams.
+    depends_on:
+      - ref('dim_customer')
+      - ref('fct_customer_acquisition')
+      - ref('fct_cohort_retention')
+    owner:
+      name: Baanu Sai Sankar Bojja
+      email: baanusankaroo7.bs@gmail.com
+
+  - name: product_performance_app
+    label: Product Performance Streamlit App
+    type: application
+    maturity: low
+    url: https://baanu-product-perf.streamlit.app
+    description: >
+      Streamlit app exploring product-level revenue, margin and inventory
+      turnover. Reads dim_product and fct_order_items via Snowflake.
+    depends_on:
+      - ref('dim_product')
+      - ref('fct_order_items')
+    owner:
+      name: Baanu Sai Sankar Bojja
+      email: baanusankaroo7.bs@gmail.com

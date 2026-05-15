@@ -2,42 +2,90 @@ version: 2
 
 sources:
   - name: raw
-    description: Raw data loaded from source systems
-    database: "{{ env_var('SNOWFLAKE_DATABASE', 'ECOMMERCE') }}"
+    description: >
+      Raw data loaded from source systems (Bronze layer). Tables here are
+      append-mostly landing tables populated by Fivetran, Airbyte, or
+      `python/load_to_snowflake.py` for the synthetic dataset.
+    database: "{{ env_var('DBT_DATABASE', 'ECOMMERCE') }}"
     schema: raw
+    # Project-wide loaded_at column convention. Each table can override.
+    loaded_at_field: _loaded_at
+    freshness:
+      warn_after: { count: 24, period: hour }
+      error_after: { count: 48, period: hour }
+
     tables:
       - name: orders
-        description: Raw order transactions from e-commerce platform
+        description: Order headers from the e-commerce platform.
         columns:
           - name: order_id
-            description: Unique identifier for each order
+            description: Unique identifier for each order.
           - name: customer_id
-            description: Reference to customer
+            description: FK to raw.customers.
           - name: product_id
-            description: Reference to product
+            description: FK to raw.products (legacy denormalized column; line items live in raw.order_items).
           - name: order_date
-            description: Date of order placement
-            
+            description: Date of order placement.
+
+      - name: order_items
+        description: >
+          Order line items. One row per (order_id, product_id). Carries
+          the per-line quantity, unit price, and discount that the marts
+          aggregate to compute revenue.
+        columns:
+          - name: order_item_id
+            description: Surrogate PK from the source system.
+          - name: order_id
+            description: FK to raw.orders.
+          - name: product_id
+            description: FK to raw.products.
+          - name: quantity
+            description: Units purchased for this line.
+          - name: unit_price
+            description: Price per unit at time of sale.
+          - name: discount_amount
+            description: Discount applied to this line, in same currency as unit_price.
+
       - name: customers
-        description: Raw customer data
+        description: Customer master records.
         columns:
           - name: customer_id
-            description: Unique customer identifier
+            description: Unique customer identifier.
           - name: email
-            description: Customer email address
-            
+            description: Customer email address (lowercased downstream).
+
       - name: products
-        description: Raw product catalog
+        description: Product catalog.
         columns:
           - name: product_id
-            description: Unique product identifier
+            description: Unique product identifier.
           - name: sku
-            description: Stock keeping unit
-            
+            description: Stock keeping unit.
+
+      - name: payments
+        description: >
+          Payment events keyed by payment_id. One order can have multiple
+          payment rows (split tender, partial refunds, etc).
+        columns:
+          - name: payment_id
+            description: Unique payment identifier.
+          - name: order_id
+            description: FK to raw.orders.
+          - name: payment_method
+            description: Enum payment method (CREDIT_CARD, PAYPAL, etc.).
+          - name: amount
+            description: Payment amount.
+          - name: status
+            description: Enum status (CAPTURED, REFUNDED, FAILED, PENDING).
+
       - name: inventory
-        description: Daily inventory snapshots
+        description: Daily inventory snapshots.
+        # Inventory is expected to update daily; tighter freshness.
+        freshness:
+          warn_after: { count: 26, period: hour }
+          error_after: { count: 72, period: hour }
         columns:
           - name: product_id
-            description: Reference to product
+            description: FK to raw.products.
           - name: snapshot_date
-            description: Date of inventory snapshot
+            description: Date of inventory snapshot.

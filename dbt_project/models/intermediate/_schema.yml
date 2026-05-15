@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: int_order_items_with_products
+    description: >
+      Order line items joined to product attributes and order header.
+      Building block for downstream marts to avoid repeating this join.
+
+  - name: int_customer_lifetime_value
+    description: >
+      One row per customer with lifetime aggregates (revenue, profit,
+      orders, returns). Consumed by dim_customer and mart_customer_ltv.
+    columns:
+      - name: customer_id
+        tests:
+          - not_null
+          - unique
