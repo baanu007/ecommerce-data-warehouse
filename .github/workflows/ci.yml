@@ -22,10 +22,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          # dbt 1.8.x supports protobuf 5; 1.7.x pinned protobuf<5 which
+          # conflicts with modern transitive deps and broke `dbt deps`.
           pip install \
-            dbt-core==1.7.4 \
-            dbt-duckdb==1.7.1 \
-            duckdb==0.10.0
+            "dbt-core>=1.8.0,<1.9.0" \
+            "dbt-duckdb>=1.8.0,<1.9.0" \
+            "duckdb>=0.10.0,<1.4.0"
 
       - name: Generate sample data
         working-directory: data/sample
@@ -39,36 +41,42 @@ jobs:
         working-directory: dbt_project
         env:
           DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_project/profiles
+          DBT_DATABASE: ci
         run: dbt deps
 
       - name: dbt seed
         working-directory: dbt_project
         env:
           DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_project/profiles
+          DBT_DATABASE: ci
         run: dbt seed --target ci
 
       - name: dbt snapshot
         working-directory: dbt_project
         env:
           DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_project/profiles
+          DBT_DATABASE: ci
         run: dbt snapshot --target ci
 
       - name: dbt run
         working-directory: dbt_project
         env:
           DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_project/profiles
+          DBT_DATABASE: ci
         run: dbt run --target ci
 
       - name: dbt test
         working-directory: dbt_project
         env:
           DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_project/profiles
+          DBT_DATABASE: ci
         run: dbt test --target ci
 
       - name: dbt docs generate
         working-directory: dbt_project
         env:
           DBT_PROFILES_DIR: ${{ github.workspace }}/dbt_project/profiles
+          DBT_DATABASE: ci
         run: dbt docs generate --target ci
 
       - name: Upload dbt artifacts
