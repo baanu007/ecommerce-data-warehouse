@@ -62,9 +62,17 @@ final as (
         coalesce(l.lifetime_gross_profit, 0)  as lifetime_gross_profit,
         coalesce(l.avg_order_value, 0)        as avg_order_value,
 
-        -- Recency / status (only meaningful on current row)
-        datediff('day', l.last_order_date, current_date) as days_since_last_order,
+        -- Recency / status are "as-of-today" metrics — only meaningful on the
+        -- current SCD2 version. For historical rows we NULL them out so BI
+        -- users can't accidentally report e.g. 'days since last order' as of
+        -- some long-expired customer version.
         case
+            when s.dbt_valid_to is null
+            then datediff('day', l.last_order_date, current_date)
+            else null
+        end as days_since_last_order,
+        case
+            when s.dbt_valid_to is not null then null
             when l.last_order_date is null then 'Never Purchased'
             when datediff('day', l.last_order_date, current_date) <= 30  then 'Active'
             when datediff('day', l.last_order_date, current_date) <= 90  then 'At Risk'
@@ -73,6 +81,7 @@ final as (
         end as customer_status,
 
         case
+            when s.dbt_valid_to is not null then null
             when coalesce(l.lifetime_revenue, 0) >= 10000 then 'Platinum'
             when coalesce(l.lifetime_revenue, 0) >= 5000  then 'Gold'
             when coalesce(l.lifetime_revenue, 0) >= 1000  then 'Silver'
