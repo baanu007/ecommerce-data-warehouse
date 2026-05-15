@@ -12,10 +12,15 @@ with items as (
     select * from {{ ref('int_order_items_with_products') }}
 ),
 
-dim_customer as (
-    select customer_key, customer_id
+dim_customer_versions as (
+    -- All SCD2 versions; temporal-join below so each line item binds to
+    -- the customer version that was current on the order date.
+    select
+        customer_key,
+        customer_id,
+        valid_from,
+        valid_to
     from {{ ref('dim_customer') }}
-    where is_current
 ),
 
 dim_product as (
@@ -55,6 +60,10 @@ select
     current_timestamp as _loaded_at
 
 from items i
-left join dim_customer c on i.customer_id = c.customer_id
+-- Temporal SCD2 join: line item picks up the customer version current on order_date.
+left join dim_customer_versions c
+    on i.customer_id = c.customer_id
+    and i.order_date >= c.valid_from
+    and (i.order_date < c.valid_to or c.valid_to is null)
 left join dim_product  p on i.product_id  = p.product_id
 left join {{ ref('dim_date') }} d on i.order_date = d.calendar_date

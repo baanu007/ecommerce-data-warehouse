@@ -1,12 +1,21 @@
 {{
     config(
-        materialized='table',
-        unique_key='order_key',
+        materialized='incremental',
+        unique_key='order_id',
+        on_schema_change='append_new_columns',
         tags=['marts', 'core', 'facts']
     )
 }}
 
 -- Order-header grain. One row per order. Line-item grain lives in fct_order_items.
+--
+-- Materialization: incremental on `order_date` so production runs append only
+-- new orders. Use `dbt run --full-refresh --select fct_orders` to rebuild
+-- from scratch when historical orders are corrected or back-filled.
+--
+-- Customer join: temporal join into the SCD2 `dim_customer` so historical
+-- orders bind to the customer version that was current AT THE TIME of the
+-- order, not whatever the customer looks like today.
 
 with order_items as (
     select * from {{ ref('int_order_items_with_products') }}
@@ -25,11 +34,15 @@ payments as (
     group by order_id
 ),
 
-dim_customer as (
-    -- Only current version of each customer (SCD2 -> single row per natural key)
-    select customer_key, customer_id
+dim_customer_versions as (
+    -- All SCD2 versions; we'll temporal-join below so each order picks up
+    -- the customer version that was in effect on its order_date.
+    select
+        customer_key,
+        customer_id,
+        valid_from,
+        valid_to
     from {{ ref('dim_customer') }}
-    where is_current
 ),
 
 order_agg as (
@@ -89,8 +102,19 @@ final as (
     from orders o
     left join order_agg   oa on o.order_id    = oa.order_id
     left join payments    p  on o.order_id    = p.order_id
-    left join dim_customer c on o.customer_id = c.customer_id
+    -- Temporal SCD2 join: the order's customer_key resolves to the
+    -- customer version that was current on o.order_date.
+    left join dim_customer_versions c
+        on o.customer_id = c.customer_id
+        and o.order_date >= c.valid_from
+        and (o.order_date < c.valid_to or c.valid_to is null)
     left join {{ ref('dim_date') }} d on o.order_date = d.calendar_date
+
+    {% if is_incremental() %}
+    -- Only process orders newer than what's already in the target table.
+    -- Use --full-refresh to rebuild historical orders if back-filled.
+    where o.order_date >= (select coalesce(max(order_date), date '1900-01-01') from {{ this }})
+    {% endif %}
 )
 
 select * from final
